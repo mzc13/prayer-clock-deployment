@@ -259,34 +259,21 @@ function flashPrayer(adhanName: keyof typeof tableRows, times: number, delay: nu
 }
 
 function islamicFinderAdhan(res: {
-  fajr: Date;
-  sunrise: Date;
-  dhuhr: Date;
-  asr: Date;
-  maghrib: Date;
-  isha: Date;
-  jummah: Date;
+  fajr: string;
+  sunrise: string;
+  dhuhr: string;
+  asr: string;
+  maghrib: string;
+  isha: string;
 }) {
   try {
     errorFixed();
-    let fajr = res
-      .match(`<p>\\s*?Fajr\\s*?<\/p>\\D*?<p>\\s*?\\d*?:\\d*?\\s*?\\w*?\\s*?<`)![0]
-      .match("\\d*:\\d*\\s*\\w*")![0];
-    let sunrise = res
-      .match(`<p>\\s*?Sunrise\\s*?<\/p>\\D*?<p>\\s*?\\d*?:\\d*?\\s*?\\w*?\\s*?<`)![0]
-      .match("\\d*:\\d*\\s*\\w*")![0];
-    let dhuhr = res
-      .match(`<p>\\s*?Dhuhr\\s*?<\/p>\\D*?<p>\\s*?\\d*?:\\d*?\\s*?\\w*?\\s*?<`)![0]
-      .match("\\d*:\\d*\\s*\\w*")![0];
-    let asr = res
-      .match(`<p>\\s*?Asr\\s*?<\/p>\\D*?<p>\\s*?\\d*?:\\d*?\\s*?\\w*?\\s*?<`)![0]
-      .match("\\d*:\\d*\\s*\\w*")![0];
-    let maghrib = res
-      .match(`<p>\\s*?Maghrib\\s*?<\/p>\\D*?<p>\\s*?\\d*?:\\d*?\\s*?\\w*?\\s*?<`)![0]
-      .match("\\d*:\\d*\\s*\\w*")![0];
-    let isha = res
-      .match(`<p>\\s*?Isha\\s*?<\/p>\\D*?<p>\\s*?\\d*?:\\d*?\\s*?\\w*?\\s*?<`)![0]
-      .match("\\d*:\\d*\\s*\\w*")![0];
+    let fajr = res.fajr;
+    let sunrise = res.sunrise;
+    let dhuhr = res.dhuhr;
+    let asr = res.asr;
+    let maghrib = res.maghrib;
+    let isha = res.isha;
 
     let removeStart0 = (time: string) => (time[0] == "0" ? time.substring(1) : time);
 
