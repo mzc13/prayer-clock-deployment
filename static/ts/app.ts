@@ -54,20 +54,16 @@ let tableRows = {
   isha: document.getElementById("ishaRow")!,
 };
 
+let iqamahParametersMap = {
+  fajr: "fajr_iqamah" as "fajr_iqamah",
+  dhuhr: "dhuhr_iqamah" as "dhuhr_iqamah",
+  asr: "asr_iqamah" as "asr_iqamah",
+  maghrib: "maghrib_iqamah" as "maghrib_iqamah",
+  isha: "isha_iqamah" as "isha_iqamah",
+};
+
 let adhanUpdateTimeout: NodeJS.Timeout;
 
-// @ts-ignore - Type gets used in other files
-type IqamahParameters = {
-  fajr_iqamah: string;
-  dhuhr_iqamah: string;
-  asr_iqamah: string;
-  maghrib_iqamah: string;
-  isha_iqamah: string;
-  jummah_1: string;
-  jummah_2: string | undefined;
-  jummah_3: string | undefined;
-  jummah_4: string | undefined;
-};
 /**
  * Returns a Date object for today's date at the specified time.
  * @param time Time string in 24 hour format or 12 hour format
@@ -97,7 +93,6 @@ function setDate() {
   let options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
   gDate.innerText = now.toLocaleDateString(undefined, options);
 
-  // Modify this so it fetches from the iqamah server to save time
   fetch("https://api.aladhan.com/v1/timings?latitude=40.68&longitude=-74.11")
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then((json) => setHijriDate(json.data))
@@ -105,7 +100,8 @@ function setDate() {
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then(islamicFinderAdhan)
     .then(setIqamahTimes)
-    .catch(() => {
+    .catch((e) => {
+      console.error(e);
       errorMode("Failed getting Adhan times or AH date");
       setTimeout(setDate, 5000);
     });
@@ -113,7 +109,7 @@ function setDate() {
 
 function reloadPage() {
   // TODO change this when deploying new app probably
-  fetch("https://bmclock2020.xyz")
+  fetch("http://bmclock2020.xyz:8080/bayonne-if")
     .then((res) => (res.ok ? location.reload() : Promise.reject()))
     .catch(() => {
       errorMode("Failed trying to reload page.");
@@ -246,6 +242,17 @@ function minuteChecks() {
   checkIfHighlightSwitch(now);
   checkIfAdhan(now);
   checkIfIqamah(now);
+  fetch("/get_times")
+    .then((response) => (response.ok ? response.json() : Promise.reject()))
+    .then((params: IqamahParameters) => {
+      if (params.timestamp.toString() != localStorage.getItem("timestamp")) {
+        localStorage.setItem("timestamp", params.timestamp.toString());
+        location.reload();
+      } else {
+        errorFixed();
+      }
+    })
+    .catch(() => errorMode("Failed getting Iqamah times"));
 }
 
 function playAdhan(adhanName: keyof typeof tableRows) {
@@ -351,19 +358,48 @@ async function setIqamahTimes() {
 
   let getJummahString = (jummahVal: string) => {
     return removeStart0(
-      new Date(`${today} ${jummahVal.substring(2)}`).toLocaleTimeString([], {
+      new Date(`${today} ${jummahVal}`).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       })
     );
   };
 
-  // TODO I was setting up the jummah cell in the table
-  // TODO Still need to finish this jummah thing, then need to set up timestamp field so I can query
-  // every minute and see if refresh needed, then might set up session storage thing to highlight 
-  // changed iqamah times
-  let tempJummah = getJummahString("jummah_1");
-  // adhanElements['jummah'].innerText =
+  let tempJummah = getJummahString(iqamahParameters.jummah_1);
+  adhanElements["jummah"].innerText = tempJummah;
+  if (iqamahParameters.jummah_2 != undefined && iqamahParameters.jummah_2 != "") {
+    tempJummah = getJummahString(iqamahParameters.jummah_2);
+    adhanElements["jummah"].innerText += `, ${tempJummah}`;
+  }
+  if (iqamahParameters.jummah_3 != undefined && iqamahParameters.jummah_3 != "") {
+    tempJummah = getJummahString(iqamahParameters.jummah_3);
+    adhanElements["jummah"].innerText += `, ${tempJummah}`;
+  }
+  if (iqamahParameters.jummah_4 != undefined && iqamahParameters.jummah_4 != "") {
+    tempJummah = getJummahString(iqamahParameters.jummah_4);
+    adhanElements["jummah"].innerText += `, ${tempJummah}`;
+  }
+  let timestampString = localStorage.getItem("timestamp");
+  let timestamp = timestampString == null ? 0 : Number.parseInt(timestampString);
+  if (Date.now() > timestamp + 24 * 60 * 60 * 1000) {
+    let setLocalStorage = (prayer: keyof typeof iqamahElements) =>
+      localStorage.setItem(prayer, iqamahParameters[iqamahParametersMap[prayer]]);
+    for (let key in iqamahElements) {
+      let prayer = key as keyof typeof iqamahElements;
+      setLocalStorage(prayer);
+    }
+  } else {
+    let changeIfNeeded = (prayer: keyof typeof iqamahElements) => {
+      if (localStorage.getItem(prayer) != iqamahParameters[iqamahParametersMap[prayer]]) {
+        iqamahElements[prayer].classList.add("changedIqamah");
+      }
+    };
+    for (let key in iqamahElements) {
+      let prayer = key as keyof typeof iqamahElements;
+      changeIfNeeded(prayer);
+    }
+    minuteChecks();
+  }
 }
 
 function errorMode(errorMessage: string) {

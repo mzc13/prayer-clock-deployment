@@ -101,25 +101,6 @@ function addJummah() {
   jummahCount < 4 ? (jummahCount += 1) : (jummahCount = 4);
 }
 
-// function changeTimes() {
-//   Object.values(selectInputs).forEach((input) => {
-//     console.log(input.value);
-//   });
-// }
-
-// @ts-ignore - Type gets used in other files
-type IqamahParameters = {
-  fajr_iqamah: string;
-  dhuhr_iqamah: string;
-  asr_iqamah: string;
-  maghrib_iqamah: string;
-  isha_iqamah: string;
-  jummah_1: string;
-  jummah_2: string | undefined;
-  jummah_3: string | undefined;
-  jummah_4: string | undefined;
-};
-
 async function changeTimes() {
   successLabel.classList.add("hidden");
   let getPrayerValue = (prayer: keyof typeof checkboxes) =>

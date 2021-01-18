@@ -7,8 +7,7 @@ const app = express();
 const host = "0.0.0.0";
 const port = 80;
 
-// const APP_PATH = process.env.APP_PATH!;
-const APP_PATH = "/home/node/prayer-clock-deployment";
+const APP_PATH = process.argv[2];
 const CONFIG_PATH = APP_PATH + "/clock_config.json";
 const sessionTokenGenerator = () => Math.floor(Math.random() * 1000000000).toFixed();
 let sessionToken = sessionTokenGenerator();
@@ -27,27 +26,7 @@ let tokenCheckMiddleware = (
 app.use(express.json());
 app.use(cookieParser());
 
-app.post("/admin", (req, res) => {
-  res.send("App running");
-});
-
-type IqamahParameters = {
-  fajr_iqamah: string;
-  dhuhr_iqamah: string;
-  asr_iqamah: string;
-  maghrib_iqamah: string;
-  isha_iqamah: string;
-  jummah_1: string;
-  jummah_2: string | undefined;
-  jummah_3: string | undefined;
-  jummah_4: string | undefined;
-};
-type ClockConfig = IqamahParameters & {
-  admin_password: string;
-};
-
 app.get("/login", (req, res) => {
-  console.log(req.cookies);
   if (req.cookies.sessionToken == sessionToken) {
     res.redirect("/admin");
   } else {
@@ -69,6 +48,7 @@ app.post("/login", async (req, res) => {
 
 app.post("/change_times", tokenCheckMiddleware, async (req, res) => {
   let config: ClockConfig = await jsonfile.readFile(CONFIG_PATH);
+  let tempConfig: typeof config = JSON.parse(JSON.stringify(config));
   let body: IqamahParameters = req.body;
   let validator = (
     prayer: "fajr_iqamah" | "dhuhr_iqamah" | "asr_iqamah" | "maghrib_iqamah" | "isha_iqamah"
@@ -81,41 +61,46 @@ app.post("/change_times", tokenCheckMiddleware, async (req, res) => {
       return "R_5";
     }
   };
-  // let jummahValidator = (jummah: 'jummah_2' | 'jummah_3' | 'jummah_4') => {
-  //   if(body[jummah] != undefined){
-  //     return body[jummah];
-  //   }else{
-  //     return undefined;
-  //   }
-  // }
-  config.fajr_iqamah = validator("fajr_iqamah");
-  config.dhuhr_iqamah = validator("dhuhr_iqamah");
-  config.asr_iqamah = validator("asr_iqamah");
-  config.maghrib_iqamah = validator("maghrib_iqamah");
-  config.isha_iqamah = validator("isha_iqamah");
-  config.jummah_1 = body.jummah_1;
-  config.jummah_2 = body.jummah_2;
-  config.jummah_3 = body.jummah_3;
-  config.jummah_4 = body.jummah_4;
+  tempConfig.fajr_iqamah = validator("fajr_iqamah");
+  tempConfig.dhuhr_iqamah = validator("dhuhr_iqamah");
+  tempConfig.asr_iqamah = validator("asr_iqamah");
+  tempConfig.maghrib_iqamah = validator("maghrib_iqamah");
+  tempConfig.isha_iqamah = validator("isha_iqamah");
+  tempConfig.jummah_1 = body.jummah_1;
+  tempConfig.jummah_2 = body.jummah_2;
+  tempConfig.jummah_3 = body.jummah_3;
+  tempConfig.jummah_4 = body.jummah_4;
+
+  for (let key in tempConfig) {
+    let configParam = key as keyof typeof tempConfig;
+    if (tempConfig[configParam] != config[configParam]) {
+      tempConfig.timestamp = Date.now();
+      break;
+    }
+  }
 
   let returnParams: IqamahParameters = {
-    fajr_iqamah: config.fajr_iqamah,
-    dhuhr_iqamah: config.dhuhr_iqamah,
-    asr_iqamah: config.asr_iqamah,
-    maghrib_iqamah: config.maghrib_iqamah,
-    isha_iqamah: config.isha_iqamah,
-    jummah_1: config.jummah_1,
-    jummah_2: config.jummah_2,
-    jummah_3: config.jummah_3,
-    jummah_4: config.jummah_4,
+    timestamp: tempConfig.timestamp,
+    fajr_iqamah: tempConfig.fajr_iqamah,
+    dhuhr_iqamah: tempConfig.dhuhr_iqamah,
+    asr_iqamah: tempConfig.asr_iqamah,
+    maghrib_iqamah: tempConfig.maghrib_iqamah,
+    isha_iqamah: tempConfig.isha_iqamah,
+    jummah_1: tempConfig.jummah_1,
+    jummah_2: tempConfig.jummah_2,
+    jummah_3: tempConfig.jummah_3,
+    jummah_4: tempConfig.jummah_4,
   };
   res.send(returnParams);
-  jsonfile.writeFile(CONFIG_PATH, config);
+  if (tempConfig.timestamp != config.timestamp) {
+    jsonfile.writeFile(CONFIG_PATH, tempConfig);
+  }
 });
 
 app.get("/get_times", async (req, res) => {
   let config: ClockConfig = await jsonfile.readFile(CONFIG_PATH);
   let returnParams: IqamahParameters = {
+    timestamp: config.timestamp,
     fajr_iqamah: config.fajr_iqamah,
     dhuhr_iqamah: config.dhuhr_iqamah,
     asr_iqamah: config.asr_iqamah,
