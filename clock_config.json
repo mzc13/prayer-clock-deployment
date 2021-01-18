@@ -1,11 +1,1 @@
-{
-  "admin_username": "admin",
-  "admin_password": "password",
-  "fajr_iqamah": "A_6:15 AM",
-  "dhuhr_iqamah": "A_12:30 PM",
-  "asr_iqamah": "A_2:50 PM",
-  "maghrib_iqamah": "R_+5",
-  "isha_iqamah": "A_7:30 PM",
-  "jummah_1": "A_12:30 PM",
-  "jummah_2": "A_1:30 PM"
-}
+{"admin_password":"bayonne123","fajr_iqamah":"A_06:15","dhuhr_iqamah":"A_12:30","asr_iqamah":"A_14:50","maghrib_iqamah":"R_5","isha_iqamah":"R_20","jummah_1":"13:30"}

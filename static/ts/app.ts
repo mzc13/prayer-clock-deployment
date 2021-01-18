@@ -27,7 +27,7 @@ let adhanTimes = {
   asr: now,
   maghrib: now,
   isha: now,
-  jummah: now,
+  // jummah: now,
 };
 let iqamahTimes = {
   fajr: todayTime("6:15 AM"),
@@ -56,13 +56,18 @@ let tableRows = {
 
 let adhanUpdateTimeout: NodeJS.Timeout;
 
-// let fajrDate : Date,
-//     sunriseDate : Date,
-//     dhuhrDate : Date,
-//     asrDate : Date,
-//     maghribDate : Date,
-//     ishaDate : Date;
-
+// @ts-ignore - Type gets used in other files
+type IqamahParameters = {
+  fajr_iqamah: string;
+  dhuhr_iqamah: string;
+  asr_iqamah: string;
+  maghrib_iqamah: string;
+  isha_iqamah: string;
+  jummah_1: string;
+  jummah_2: string | undefined;
+  jummah_3: string | undefined;
+  jummah_4: string | undefined;
+};
 /**
  * Returns a Date object for today's date at the specified time.
  * @param time Time string in 24 hour format or 12 hour format
@@ -99,6 +104,7 @@ function setDate() {
     .then(() => fetch("http://bmclock2020.xyz:8080/bayonne-if"))
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then(islamicFinderAdhan)
+    .then(setIqamahTimes)
     .catch(() => {
       errorMode("Failed getting Adhan times or AH date");
       setTimeout(setDate, 5000);
@@ -214,19 +220,22 @@ function checkIfHighlightSwitch(now: Date) {
 }
 
 function checkIfAdhan(now: Date) {
-  for (let adhan of Object.entries(adhanTimes)) {
+  for (let key in adhanTimes) {
+    let prayer = key as keyof typeof adhanTimes;
+    if (now.getDay() == 5 && prayer == "dhuhr") continue; // Skip dhuhr on Jummah
     // TODO This might need to be modified when implementing jummah but possibly not
-    if (adhan[1].valueOf() == now.valueOf()) {
-      // TODO need to ensure that adhanTimes and adhanElements keep the same key values
-      playAdhan(adhan[0] as keyof typeof tableRows);
+    if (adhanTimes[prayer].valueOf() == now.valueOf()) {
+      playAdhan(prayer);
     }
   }
 }
 
 function checkIfIqamah(now: Date) {
   const oneMin = 60000;
-  for (let time of Object.values(iqamahTimes)) {
-    if (now.valueOf() + oneMin == time.valueOf()) {
+  for (let key in iqamahTimes) {
+    let iqamah = key as keyof typeof iqamahTimes;
+    if (now.getDay() == 5 && iqamah == "dhuhr") continue; // Skip dhuhr on Jummah
+    if (now.valueOf() + oneMin == iqamahTimes[iqamah].valueOf()) {
       setTimeout(playIqamah, 50 * 1000);
     }
   }
@@ -313,6 +322,48 @@ function islamicFinderAdhan(res: {
   } catch (error) {
     errorMode("Failed setting Adhan times");
   }
+}
+
+async function setIqamahTimes() {
+  let iqamahParameters: IqamahParameters = await (await fetch("/get_times")).json();
+  let today = new Date().toLocaleDateString();
+  let iqamahSetter = (prayer: keyof typeof iqamahTimes, val: string) =>
+    val.startsWith("A")
+      ? new Date(`${today} ${val.substring(2)}`)
+      : new Date(adhanTimes[prayer].valueOf() + 60000 * Number.parseInt(val.substring(2)));
+
+  iqamahTimes["fajr"] = iqamahSetter("fajr", iqamahParameters.fajr_iqamah);
+  iqamahTimes["dhuhr"] = iqamahSetter("dhuhr", iqamahParameters.dhuhr_iqamah);
+  iqamahTimes["asr"] = iqamahSetter("asr", iqamahParameters.asr_iqamah);
+  iqamahTimes["maghrib"] = iqamahSetter("maghrib", iqamahParameters.maghrib_iqamah);
+  iqamahTimes["isha"] = iqamahSetter("isha", iqamahParameters.isha_iqamah);
+
+  let removeStart0 = (time: string) => (time[0] == "0" ? time.substring(1) : time);
+
+  for (let key in iqamahElements) {
+    let prayer = key as keyof typeof iqamahElements;
+    let timeString = iqamahTimes[prayer].toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    iqamahElements[prayer].innerText = removeStart0(timeString);
+  }
+
+  let getJummahString = (jummahVal: string) => {
+    return removeStart0(
+      new Date(`${today} ${jummahVal.substring(2)}`).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    );
+  };
+
+  // TODO I was setting up the jummah cell in the table
+  // TODO Still need to finish this jummah thing, then need to set up timestamp field so I can query
+  // every minute and see if refresh needed, then might set up session storage thing to highlight 
+  // changed iqamah times
+  let tempJummah = getJummahString("jummah_1");
+  // adhanElements['jummah'].innerText =
 }
 
 function errorMode(errorMessage: string) {

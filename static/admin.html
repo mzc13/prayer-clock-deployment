@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="./css/tcss.css" />
+    <title>Prayer Clock Admin Page</title>
+  </head>
+  <body>
+    <form
+      onsubmit="changeTimes()"
+      action="javascript:void(0);"
+      class="grid grid-cols-4 grid-row-12 gap-2 mt-5 mx-3 md:w-1/2 md:mx-auto"
+    >
+      <div class="row-start-1 grid col-span-4 grid-cols-4">
+        <label for="fajrInput" id="fajrLabel" class="col-start-1 col-span- text-2xl">Fajr</label>
+        <input
+          id="fc"
+          type="checkbox"
+          data-prayer="fajr"
+          onclick="check(this)"
+          class="col-start-2 mx-auto my-auto"
+        />
+        <input
+          type="time"
+          id="fajrInput"
+          class="col-start-3 h-8 col-span-2 mx-auto border-2 border-black"
+        />
+        <select
+          id="fajrSelectInput"
+          class="col-start-3 col-span-2 mx-auto h-8 hidden border-2 border-black"
+        >
+          <option value="5">5 minutes after adhan</option>
+          <option value="10">10 minutes after adhan</option>
+          <option value="15">15 minutes after adhan</option>
+          <option value="20">20 minutes after adhan</option>
+        </select>
+      </div>
+      <div class="row-start-2 grid col-span-4 grid-cols-4">
+        <label for="dhuhrInput" id="dhuhrLabel" class="col-start-1 col-span- text-2xl">Dhuhr</label>
+        <input
+          id="dc"
+          type="checkbox"
+          data-prayer="dhuhr"
+          onclick="check(this)"
+          class="col-start-2 mx-auto my-auto"
+        />
+        <input
+          type="time"
+          id="dhuhrInput"
+          class="col-start-3 col-span-2 mx-auto h-8 border-2 border-black"
+        />
+        <select
+          id="dhuhrSelectInput"
+          class="col-start-3 col-span-2 mx-auto h-8 hidden border-2 border-black"
+        >
+          <option value="5">5 minutes after adhan</option>
+          <option value="10">10 minutes after adhan</option>
+          <option value="15">15 minutes after adhan</option>
+          <option value="20">20 minutes after adhan</option>
+        </select>
+      </div>
+      <div class="row-start-3 grid col-span-4 grid-cols-4">
+        <label for="asrInput" id="asrLabel" class="col-start-1 col-span- text-2xl">Asr</label>
+        <input
+          id="ac"
+          type="checkbox"
+          data-prayer="asr"
+          onclick="check(this)"
+          class="col-start-2 mx-auto my-auto"
+        />
+        <input
+          type="time"
+          id="asrInput"
+          class="col-start-3 col-span-2 mx-auto h-8 border-2 border-black"
+        />
+        <select
+          id="asrSelectInput"
+          class="col-start-3 col-span-2 mx-auto h-8 hidden border-2 border-black"
+        >
+          <option value="5">5 minutes after adhan</option>
+          <option value="10">10 minutes after adhan</option>
+          <option value="15">15 minutes after adhan</option>
+          <option value="20">20 minutes after adhan</option>
+        </select>
+      </div>
+      <div class="row-start-4 grid col-span-4 grid-cols-4">
+        <label for="maghribInput" id="maghribLabel" class="col-start-1 col-span- text-2xl"
+          >Maghrib</label
+        >
+        <input
+          id="mc"
+          type="checkbox"
+          data-prayer="maghrib"
+          onclick="check(this)"
+          class="col-start-2 mx-auto my-auto"
+        />
+        <input
+          type="time"
+          id="maghribInput"
+          class="col-start-3 col-span-2 mx-auto h-8 border-2 border-black"
+        />
+        <select
+          id="maghribSelectInput"
+          class="col-start-3 col-span-2 mx-auto hidden h-8 border-2 border-black"
+        >
+          <option value="5">5 minutes after adhan</option>
+          <option value="10">10 minutes after adhan</option>
+          <option value="15">15 minutes after adhan</option>
+          <option value="20">20 minutes after adhan</option>
+        </select>
+      </div>
+      <div class="row-start-5 grid col-span-4 grid-cols-4">
+        <label for="ishaInput" id="ishaLabel" class="col-start-1 col-span- text-2xl">Isha</label>
+        <input
+          id="ic"
+          type="checkbox"
+          data-prayer="isha"
+          onclick="check(this)"
+          class="col-start-2 mx-auto my-auto"
+        />
+        <input
+          type="time"
+          id="ishaInput"
+          class="col-start-3 col-span-2 mx-auto h-8 border-2 border-black"
+        />
+        <select
+          id="ishaSelectInput"
+          class="col-start-3 col-span-2 mx-auto h-8 hidden border-2 border-black"
+        >
+          <option value="5">5 minutes after adhan</option>
+          <option value="10">10 minutes after adhan</option>
+          <option value="15">15 minutes after adhan</option>
+          <option value="20">20 minutes after adhan</option>
+        </select>
+      </div>
+      <div class="row-start-6 grid col-span-4 grid-cols-4">
+        <label for="jummah1Input" id="jummahLabel" class="col-start-1 col-span- text-2xl"
+          >Jummah</label
+        >
+        <input
+          type="time"
+          id="jummah1Input"
+          class="col-start-3 col-span-2 mx-auto h-8 border-2 border-black"
+        />
+      </div>
+      <div id="dj2" class="row-start-7 grid col-span-4 grid-cols-4 hidden">
+        <button
+          type="button"
+          id="brj2"
+          data-jummah="jummah2"
+          onclick="removeJummah(this)"
+          class="col-start-1 col-span-2 bg-red-600 text-white"
+        >
+          Remove Jummah 2
+        </button>
+        <input
+          type="time"
+          id="jummah2Input"
+          class="col-start-3 col-span-2 mx-auto h-8 border-2 border-black"
+        />
+      </div>
+      <div id="dj3" class="row-start-8 grid col-span-4 grid-cols-4 grid-rows-1 hidden">
+        <button
+          type="button"
+          id="brj3"
+          data-jummah="jummah3"
+          onclick="removeJummah(this)"
+          class="col-start-1 col-span-2 bg-red-600 text-white"
+        >
+          Remove Jummah 3
+        </button>
+        <input
+          type="time"
+          id="jummah3Input"
+          class="col-start-3 col-span-2 mx-auto h-8 border-2 border-black"
+        />
+      </div>
+      <div id="dj4" class="row-start-9 grid col-span-4 grid-cols-4 grid-rows-1 hidden">
+        <button
+          type="button"
+          id="brj4"
+          data-jummah="jummah4"
+          onclick="removeJummah(this)"
+          class="col-start-1 col-span-2 bg-red-600 text-white"
+        >
+          Remove Jummah 4
+        </button>
+        <input
+          type="time"
+          id="jummah4Input"
+          class="col-start-3 col-span-2 mx-auto h-8 border-2 border-black"
+        />
+      </div>
+      <div class="row-start-10 grid col-span-4 grid-cols-4 grid-rows-1">
+        <button
+          type="button"
+          id="baj"
+          onclick="addJummah()"
+          class="col-start-1 col-span-2 bg-green-600 text-white h-8"
+        >
+          Add Jummah
+        </button>
+      </div>
+      <div class="row-start-11 mt-3 grid col-span-4 grid-cols-4 grid-rows-1">
+        <button type="submit" class="col-start-1 col-span-4 bg-green-600 text-white h-8">
+          Submit
+        </button>
+      </div>
+    </form>
+    <p id="successLabel" class="text-center mx-auto text-green-800 mt-5 hidden">Success</p>
+    <script src="/js/admin.js"></script>
+  </body>
+</html>
