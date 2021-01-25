@@ -8,6 +8,11 @@ const host = "0.0.0.0";
 const port = 80;
 
 const APP_PATH = process.argv[2];
+if (APP_PATH == null || APP_PATH == "") {
+  console.error("Command Usage: node <path_to_index.js> <path_to_app_directory>");
+  console.error("Ex: node /home/dev/app/js/index.js /home/dev/app");
+  process.exit(1);
+}
 const CONFIG_PATH = APP_PATH + "/clock_config.json";
 const sessionTokenGenerator = () => Math.floor(Math.random() * 1000000000).toFixed();
 let sessionToken = sessionTokenGenerator();
