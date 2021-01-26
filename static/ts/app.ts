@@ -422,4 +422,3 @@ function errorFixed() {
 setDate();
 clockApp();
 window.addEventListener("minutePassed", minuteChecks);
-setTimeout(() => playIqamah(), 10000);
