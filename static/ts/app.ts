@@ -307,25 +307,6 @@ function islamicFinderAdhan(res: {
     adhanTimes["asr"] = new Date(today + " " + asr);
     adhanTimes["maghrib"] = new Date(today + " " + maghrib);
     adhanTimes["isha"] = new Date(today + " " + isha);
-
-    iqamahTimes["maghrib"] = new Date(adhanTimes["maghrib"].getTime() + 5 * 60000);
-    let mIqamah = iqamahTimes["maghrib"];
-    // TODO fix this so the function is more robust and these extra sanitation steps dont have to happen here
-    let mHour = mIqamah.getHours() < 10 ? "0" + mIqamah.getHours() : "" + mIqamah.getHours();
-    let mMin = mIqamah.getMinutes() < 10 ? "0" + mIqamah.getMinutes() : "" + mIqamah.getMinutes();
-    iqamahElements["maghrib"].innerText = formatTime(mHour + ":" + mMin);
-
-    // TODO fix this so if you end up adding to a time after midnight it still works
-    switchHighlightTo["fajr"] = new Date(iqamahTimes["isha"].valueOf() + 20 * 60000);
-    switchHighlightTo["sunrise"] = new Date(iqamahTimes["fajr"].valueOf() + 20 * 60000);
-    // Deal with special case of jummah
-    switchHighlightTo["dhuhr"] = new Date(adhanTimes["sunrise"].valueOf() + 20 * 60000);
-    switchHighlightTo["asr"] = new Date(iqamahTimes["dhuhr"].valueOf() + 20 * 60000);
-
-    switchHighlightTo["maghrib"] = new Date(iqamahTimes["asr"].valueOf() + 20 * 60000);
-    switchHighlightTo["isha"] = new Date(iqamahTimes["maghrib"].valueOf() + 20 * 60000);
-
-    checkIfHighlightSwitch(new Date());
   } catch (error) {
     errorMode("Failed setting Adhan times");
   }
@@ -344,6 +325,18 @@ async function setIqamahTimes() {
   iqamahTimes["asr"] = iqamahSetter("asr", iqamahParameters.asr_iqamah);
   iqamahTimes["maghrib"] = iqamahSetter("maghrib", iqamahParameters.maghrib_iqamah);
   iqamahTimes["isha"] = iqamahSetter("isha", iqamahParameters.isha_iqamah);
+
+  // TODO fix this so if you end up adding to a time after midnight it still works
+  switchHighlightTo["fajr"] = new Date(iqamahTimes["isha"].valueOf() + 20 * 60000);
+  switchHighlightTo["sunrise"] = new Date(iqamahTimes["fajr"].valueOf() + 20 * 60000);
+  // Deal with special case of jummah
+  switchHighlightTo["dhuhr"] = new Date(adhanTimes["sunrise"].valueOf() + 20 * 60000);
+  switchHighlightTo["asr"] = new Date(iqamahTimes["dhuhr"].valueOf() + 20 * 60000);
+
+  switchHighlightTo["maghrib"] = new Date(iqamahTimes["asr"].valueOf() + 20 * 60000);
+  switchHighlightTo["isha"] = new Date(iqamahTimes["maghrib"].valueOf() + 20 * 60000);
+
+  checkIfHighlightSwitch(new Date());
 
   let removeStart0 = (time: string) => (time[0] == "0" ? time.substring(1) : time);
 
