@@ -93,7 +93,7 @@ function setDate() {
   let options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
   gDate.innerText = now.toLocaleDateString(undefined, options);
 
-  fetch("https://api.aladhan.com/v1/timings?latitude=40.68&longitude=-74.11")
+  fetch("https://api.aladhan.com/v1/timings?latitude=40.68&longitude=-74.11&adjustment=1")
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then((json) => setHijriDate(json.data))
     .then(() => fetch("https://api.bmclock2020.xyz/bayonne-if"))
