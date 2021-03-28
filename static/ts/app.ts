@@ -96,7 +96,7 @@ function setDate() {
   fetch("https://api.aladhan.com/v1/timings?latitude=40.68&longitude=-74.11")
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then((json) => setHijriDate(json.data))
-    .then(() => fetch("https://api.bmclock2020.xyz/bayonne-if"))
+    .then(() => fetch("https://api.bmclock2020.xyz/newark-if"))
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then(islamicFinderAdhan)
     .then(setIqamahTimes)
@@ -109,7 +109,7 @@ function setDate() {
 
 function reloadPage() {
   // TODO change this when deploying new app probably
-  fetch("https://api.bmclock2020.xyz/bayonne-if")
+  fetch("https://api.bmclock2020.xyz/newark-if")
     .then((res) => (res.ok ? location.reload() : Promise.reject()))
     .catch(() => {
       errorMode("Failed trying to reload page.");
