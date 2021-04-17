@@ -96,14 +96,19 @@ function setDate() {
   fetch("https://api.aladhan.com/v1/timings?latitude=40.68&longitude=-74.11&adjustment=1")
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then((json) => setHijriDate(json.data))
+    .catch((e) => {
+      console.error(e);
+      errorMode("AH date");
+      setTimeout(setDate, 10000);
+    })
     .then(() => fetch("https://api.bmclock2020.xyz/midland_park-if"))
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then(islamicFinderAdhan)
     .then(setIqamahTimes)
     .catch((e) => {
       console.error(e);
-      errorMode("Failed getting Adhan times or AH date");
-      setTimeout(setDate, 5000);
+      errorMode("Failed getting Adhan times");
+      setTimeout(setDate, 10000);
     });
 }
 
