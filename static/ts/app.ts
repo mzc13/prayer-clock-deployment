@@ -102,7 +102,7 @@ function setDate() {
       errorMode("AH date");
       setTimeout(setDate, 10000);
     })
-    .then(() => fetch("https://api.bmclock2020.xyz/midland_park-if"))
+    .then(() => fetch("https://api.bmclock2020.xyz/bayonne-if"))
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then(islamicFinderAdhan)
     .then(setIqamahTimes)
@@ -115,7 +115,7 @@ function setDate() {
 
 function reloadPage() {
   // TODO change this when deploying new app probably
-  fetch("https://api.bmclock2020.xyz/midland_park-if")
+  fetch("https://api.bmclock2020.xyz/bayonne-if")
     .then((res) => (res.ok ? location.reload() : Promise.reject()))
     .catch(() => {
       errorMode("Failed trying to reload page.");
