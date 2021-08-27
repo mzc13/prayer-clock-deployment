@@ -62,7 +62,7 @@ let iqamahParametersMap = {
   isha: "isha_iqamah" as "isha_iqamah",
 };
 
-let adhanUpdateTimeout: NodeJS.Timeout;
+let adhanUpdateTimeout = -1;
 
 /**
  * Returns a Date object for today's date at the specified time.
@@ -86,14 +86,15 @@ function setDate() {
     new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 0).valueOf() -
     now.valueOf();
 
-  clearTimeout(adhanUpdateTimeout);
+  window.clearTimeout(adhanUpdateTimeout);
   // adhanUpdateTimeout = setTimeout(reloadPage, updateInterval + 300000);
-  adhanUpdateTimeout = setTimeout(reloadPage, 3600000 * 2);
+  adhanUpdateTimeout = window.setTimeout(reloadPage, 3600000 * 2);
 
   let options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
   gDate.innerText = now.toLocaleDateString(undefined, options);
 
-  fetch("https://api.aladhan.com/v1/timings?latitude=40.68&longitude=-74.11&adjustment=1")
+  // fetch("https://api.aladhan.com/v1/timings?latitude=40.68&longitude=-74.11&adjustment=1")
+  fetch("https://api.aladhan.com/v1/timings?latitude=40.68&longitude=-74.11")
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then((json) => setHijriDate(json.data))
     .catch((e) => {
@@ -101,7 +102,7 @@ function setDate() {
       errorMode("AH date");
       setTimeout(setDate, 10000);
     })
-    .then(() => fetch("https://api.bmclock2020.xyz/midland_park-if"))
+    .then(() => fetch("https://prayer-clock-api.bayonnemuslims.cyou/midland_park-if"))
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then(islamicFinderAdhan)
     .then(setIqamahTimes)
@@ -114,7 +115,7 @@ function setDate() {
 
 function reloadPage() {
   // TODO change this when deploying new app probably
-  fetch("https://api.bmclock2020.xyz/midland_park-if")
+  fetch("https://prayer-clock-api.bayonnemuslims.cyou/midland_park-if")
     .then((res) => (res.ok ? location.reload() : Promise.reject()))
     .catch(() => {
       errorMode("Failed trying to reload page.");
